@@ -1,0 +1,28 @@
+const peer = new Peer(); // Erstellt eine eigene ID
+let conn;
+
+// 1. Eigene ID anzeigen
+peer.on('open', (id) => {
+    document.getElementById('my-id').innerText = id;
+});
+
+// 2. Verbindung von jemand anderem empfangen
+peer.on('connection', (c) => {
+    conn = c;
+    alert("Verbunden mit einem Spieler!");
+    setupConnectionListeners();
+});
+
+// 3. Selbst verbinden
+function connectToPeer() {
+    const peerId = document.getElementById('peer-id').value;
+    conn = peer.connect(peerId);
+    setupConnectionListeners();
+}
+
+function setupConnectionListeners() {
+    conn.on('data', (data) => {
+        // Hier kommen die Daten an (z.B. Spieler 2 Position)
+        console.log('Daten empfangen:', data);
+    });
+}
