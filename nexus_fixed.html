@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rocket Soccer 2D Online</title>
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+    <style>
+        body { margin: 0; background: #222; color: white; text-align: center; font-family: sans-serif; }
+        #ui { padding: 10px; background: #333; }
+        canvas { background: #1a472a; display: block; margin: 10px auto; border: 4px solid white; }
+    </style>
+</head>
+<body>
+    <div id="ui">
+        <h3>DEINE ID: <span id="my-id">Warte...</span></h3>
+        <input type="text" id="peer-id" placeholder="ID vom Freund">
+        <button onclick="connect()">Verbinden</button>
+    </div>
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const peer = new Peer();
+        let conn;
+        let player = { x: 100, y: 200, color: 'white' };
+        let opponent = { x: 700, y: 200, color: 'red' };
+
+        peer.on('open', (id) => document.getElementById('my-id').innerText = id);
+
+        peer.on('connection', (c) => {
+            conn = c;
+            setupConnection();
+        });
+
+        function connect() {
+            conn = peer.connect(document.getElementById('peer-id').value);
+            setupConnection();
+        }
+
+        function setupConnection() {
+            conn.on('data', (data) => {
+                opponent.x = data.x;
+                opponent.y = data.y;
+            });
+        }
+
+        // Steuerung
+        window.addEventListener('keydown', (e) => {
+            if(e.key === 'ArrowUp') player.y -= 10;
+            if(e.key === 'ArrowDown') player.y += 10;
+            
+            // Daten senden
+            if(conn && conn.open) conn.send({x: player.x, y: player.y});
+        });
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Spieler zeichnen
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, 40, 20);
+            // Gegner zeichnen
+            ctx.fillStyle = opponent.color;
+            ctx.fillRect(opponent.x, opponent.y, 40, 20);
+            requestAnimationFrame(draw);
+        }
+        draw();
+    </script>
+</body>
+</html>
