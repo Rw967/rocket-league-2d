@@ -1,0 +1,11 @@
+function update() {
+    // 1. Deine Bewegung berechnen...
+    // 2. Daten senden, WENN eine Verbindung besteht:
+    if (conn && conn.open) {
+        conn.send({
+            type: 'playerPos',
+            x: player.x,
+            y: player.y
+        });
+    }
+}
